@@ -50,10 +50,18 @@ const input = document.getElementById('input');
 const sendBtn = document.getElementById('send-btn');
 const status = document.getElementById('status');
 
+function renderMd(text) {
+  return text
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '<em>$1</em>')
+    .replace(/\n/g, '<br>');
+}
+
 function addMsg(text, role, sources) {
   const div = document.createElement('div');
   div.className = `msg ${role}`;
-  div.textContent = text;
+  div.innerHTML = renderMd(text);
   if (sources && sources.length) {
     const s = document.createElement('div');
     s.className = 'sources';
@@ -65,12 +73,26 @@ function addMsg(text, role, sources) {
   return div;
 }
 
-async function ingest() {
-  status.textContent = 'Chargement des documents…';
-  const r = await fetch('/api/ingest', { method: 'POST', headers: {'Content-Type':'application/json'}, body: '{}' });
+async function checkStatus() {
+  const r = await fetch('/api/status');
   const d = await r.json();
-  const n = d.total_chunks;
-  status.textContent = `${d.ingested.length} docs chargés (${n} passages)`;
+  if (d.ready) {
+    status.textContent = `${d.chunks} passages en mémoire`;
+  } else {
+    status.textContent = 'Chargement des documents…';
+    await ingest(false);
+  }
+}
+
+async function ingest(force = true) {
+  status.textContent = 'Ingestion en cours…';
+  const r = await fetch('/api/ingest', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ force }) });
+  const d = await r.json();
+  if (d.skipped) {
+    status.textContent = `${d.total_chunks} passages déjà en mémoire`;
+  } else {
+    status.textContent = `${d.ingested.length} docs chargés (${d.total_chunks} passages)`;
+  }
 }
 
 async function send() {
@@ -88,17 +110,21 @@ async function send() {
     });
     const d = await r.json();
     thinking.remove();
-    addMsg(d.answer, 'assistant', d.sources);
+    if (d.error) {
+      addMsg('Erreur : ' + d.error, 'assistant');
+    } else {
+      addMsg(d.answer, 'assistant', d.sources);
+    }
   } catch(e) {
-    thinking.textContent = 'Erreur de connexion.';
+    thinking.textContent = 'Erreur de connexion au serveur.';
     thinking.classList.remove('thinking');
   }
   sendBtn.disabled = false;
   input.focus();
 }
 
-// Auto-ingest au démarrage
-window.addEventListener('load', ingest);
+// Vérifier l'état au démarrage, ingérer seulement si vide
+window.addEventListener('load', checkStatus);
 </script>
 </body>
 </html>

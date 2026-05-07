@@ -2,7 +2,7 @@ import os
 import pdfplumber
 import chromadb
 from sentence_transformers import SentenceTransformer
-import anthropic
+from openai import OpenAI
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -11,7 +11,7 @@ CHROMA_PATH = os.getenv("CHROMA_PATH", "./chroma_db")
 _client = None
 _collection = None
 _embedder = None
-_anthropic = None
+_llm = None
 
 
 def _get_collection():
@@ -29,11 +29,14 @@ def _get_embedder():
     return _embedder
 
 
-def _get_anthropic():
-    global _anthropic
-    if _anthropic is None:
-        _anthropic = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
-    return _anthropic
+def _get_llm():
+    global _llm
+    if _llm is None:
+        _llm = OpenAI(
+            base_url="https://openrouter.ai/api/v1",
+            api_key=os.getenv("OPENROUTER_API_KEY"),
+        )
+    return _llm
 
 
 def chunk_text(text: str, chunk_size: int = 300, overlap: int = 50) -> list[str]:
@@ -49,6 +52,10 @@ def chunk_text(text: str, chunk_size: int = 300, overlap: int = 50) -> list[str]
             break
         start += chunk_size - overlap
     return chunks
+
+
+def collection_count() -> int:
+    return _get_collection().count()
 
 
 def ingest_directory(directory: str) -> dict:
@@ -92,21 +99,24 @@ def ask_question(question: str, n_results: int = 5) -> dict:
     context = "\n\n---\n\n".join(
         f"[Source: {c['source']}]\n{c['content']}" for c in chunks
     )
-    client = _get_anthropic()
-    message = client.messages.create(
-        model="claude-sonnet-4-6",
+    client = _get_llm()
+    response = client.chat.completions.create(
+        model=os.getenv("LLM_MODEL", "anthropic/claude-sonnet-4-5"),
         max_tokens=1024,
-        system=(
-            "Tu es un assistant interne SAMSE. Reponds en francais a partir UNIQUEMENT des documents fournis. "
-            "Si la reponse n'est pas dans les documents, dis-le clairement. "
-            "Cite toujours la source entre crochets [nom_fichier]."
-        ),
         messages=[
+            {
+                "role": "system",
+                "content": (
+                    "Tu es un assistant interne SAMSE. Reponds en francais a partir UNIQUEMENT des documents fournis. "
+                    "Si la reponse n'est pas dans les documents, dis-le clairement. "
+                    "Cite toujours la source entre crochets [nom_fichier]."
+                ),
+            },
             {"role": "user", "content": f"Documents:\n{context}\n\nQuestion: {question}"},
         ],
     )
     return {
-        "answer": message.content[0].text,
+        "answer": response.choices[0].message.content,
         "sources": list({c["source"] for c in chunks}),
         "chunks_used": len(chunks),
     }
