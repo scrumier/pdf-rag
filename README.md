@@ -56,3 +56,43 @@ Chat UI    (static/index.html)  →  Interface web par-dessus l'API
 ## Ajouter des documents
 
 Déposer des PDFs dans `demo_docs/` puis cliquer "Recharger les docs" dans l'interface, ou appeler `POST /api/ingest`.
+
+---
+
+## Questions de démo
+
+Corpus: 98 PDFs (fiches produits, procédures internes, tarifs régionaux, contrats fournisseurs, fiches techniques Rockwool).
+
+### Produits et prix
+
+- "Quelles sont les applications de la laine de roche ?"
+- "Quelle est la résistance thermique de la laine de verre 160mm ?"
+- "Quels isolants sont certifiés pour MaPrimeRénov ?"
+
+### Procédures internes
+
+- "Quelles sont les conditions pour retourner une marchandise ?"
+- "Comment passer une commande urgente ?"
+- "Quelles sont les conditions pour ouvrir un crédit client ?"
+- "Quelle est la procédure en cas de non-conformité fournisseur ?"
+- "Comment se déroule l'inventaire annuel ?"
+
+### Contrats fournisseurs
+
+- "Quelles sont les pénalités de retard de livraison fournisseur ?"
+- "Quel est le délai de paiement standard avec les fournisseurs ?"
+- "Quelles sont les conditions de révision des prix fournisseurs ?"
+
+### Tarifs
+
+- "Quel est le tarif de la laine de verre 100mm en Ile-de-France ?"
+- "Quelles remises volume sont disponibles ?"
+
+### Test anti-hallucination (pas de réponse dans les docs)
+
+- "Quel est le prix du placo BA13 en région Bretagne ?" → doit dire qu'il n'a pas l'info
+- "Quels sont les horaires de l'agence de Lyon ?" → doit dire qu'il n'a pas l'info
+
+### Conseil démo
+
+Utiliser des mots proches du vocabulaire des documents ("procédure retour", "crédit client", "non-conformité") plutôt que du langage très naturel. Le moteur de recherche sémantique fonctionne mieux quand la question ressemble aux titres des sections.
