@@ -1,10 +1,10 @@
-# samse-rag
+# pdf-rag
 
-RAG chatbot built for SAMSE, a French building materials distributor.
+RAG chatbot for internal PDF documents.
 
 ## What it does
 
-Employees can ask questions in plain French and get answers sourced directly from internal PDF documents. The system finds the relevant passages, then generates a clear response with references to the source files.
+Users can ask questions in plain language and get answers sourced directly from internal PDF documents. The system finds the relevant passages, then generates a clear response with references to the source files.
 
 ## How it works
 
@@ -24,7 +24,7 @@ Employees can ask questions in plain French and get answers sourced directly fro
 
 ## Context
 
-Built in 2 days as a prototype. Tested on 98 internal PDFs from SAMSE. The goal was to show that a small team can deploy a functional internal knowledge base without fine-tuning any model.
+Built in 2 days as a prototype. Tested on 98 internal PDFs. The goal was to show that a small team can deploy a functional internal knowledge base without fine-tuning any model.
 
 ## Author
 
