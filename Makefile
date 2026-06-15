@@ -3,7 +3,8 @@
 #   make run     <- démarre le chatbot RAG  ->  http://127.0.0.1:5050
 # Bind Tailscale uniquement, jamais exposé publiquement.
 
-TS   := 127.0.0.1
+-include local.mk
+TS ?= 127.0.0.1
 PORT := 5050
 
 .PHONY: help setup run
