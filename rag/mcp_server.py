@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-mcp = FastMCP("samse-rag")
+mcp = FastMCP("pdf-rag")
 
 
 @mcp.tool()

@@ -1,6 +1,17 @@
+"""Génère un jeu de documents de démo 100% fictif (aucune entreprise réelle).
+
+Acheteur fictif : ACME Distribution SAS. Fournisseurs fictifs : Isolam, Rocmer,
+Isoplan. Sert de corpus pour la démo RAG et pour la démo d'analyse de contrats.
+"""
+
 from fpdf import FPDF
 from fpdf.enums import XPos, YPos
 import os
+
+OUT_DIR = "demo_docs"
+ACHETEUR = "ACME Distribution SAS - 1 rue de l'Exemple - 38000 Grenoble"
+FOURNISSEURS = ["Isolam", "Rocmer", "Isoplan"]
+
 
 def make_pdf(filename, title, sections):
     pdf = FPDF()
@@ -15,15 +26,48 @@ def make_pdf(filename, title, sections):
         for line in lines:
             pdf.multi_cell(0, 6, line, new_x=XPos.LMARGIN, new_y=YPos.NEXT)
         pdf.ln(3)
-    out = os.path.join("demo_docs", filename)
+    out = os.path.join(OUT_DIR, filename)
     pdf.output(out)
     print(f"Generated: {out}")
 
-make_pdf("catalogue-produits.pdf", "Catalogue Produits SAMSE 2025", [
+
+def make_contrat(fournisseur):
+    make_pdf(
+        f"contrat-{fournisseur.lower()}-2025.pdf",
+        f"Contrat Cadre - {fournisseur} - 2025",
+        [
+            ("Parties", [
+                f"Acheteur: {ACHETEUR}",
+                f"Vendeur: {fournisseur}",
+                "Duree: 12 mois du 1er janvier au 31 decembre 2025, tacite reconduction.",
+            ]),
+            ("Conditions tarifaires", [
+                "Prix base: selon tarif fournisseur en vigueur au 1er janvier 2025.",
+                "Remise commerciale: 8 a 14% selon volumes et categories.",
+                "Remise de fin d'annee (RFA): 1.5% si objectif CA atteint.",
+                "Frais de port offerts: commandes > 3 000 EUR HT livrees en 48h.",
+            ]),
+            ("Qualite et service", [
+                "Taux de service minimum: 96% (livraisons dans les delais).",
+                "Taux de non-conformite maximum accepte: 0.5%.",
+                "Penalite non-livraison: 0.5% du montant commande par jour de retard.",
+            ]),
+            ("Paiement", [
+                "Delai: 30 jours fin de mois date de facture.",
+                "Escompte paiement comptant: 1%.",
+                "Penalites de retard: taux BCE + 10 points (loi LME).",
+            ]),
+        ],
+    )
+
+
+os.makedirs(OUT_DIR, exist_ok=True)
+
+make_pdf("catalogue-produits.pdf", "Catalogue Produits ACME 2025", [
     ("Isolation thermique", [
-        "REF-ISO-001 - Laine de verre ISOVER 100mm - R=2.6 m2K/W - Prix: 8.50 EUR/m2",
+        "REF-ISO-001 - Laine de verre 100mm - R=2.6 m2K/W - Prix: 8.50 EUR/m2",
         "REF-ISO-002 - Panneau PSE graphite 80mm - R=2.8 m2K/W - Prix: 12.00 EUR/m2",
-        "REF-ISO-003 - Laine de roche ROCKWOOL 120mm - R=3.45 m2K/W - Prix: 10.20 EUR/m2",
+        "REF-ISO-003 - Laine de roche 120mm - R=3.45 m2K/W - Prix: 10.20 EUR/m2",
         "Application: murs, combles, planchers. Classe feu: A1 (laine), B (PSE).",
     ]),
     ("Etancheite toiture", [
@@ -38,7 +82,7 @@ make_pdf("catalogue-produits.pdf", "Catalogue Produits SAMSE 2025", [
         "Garantie produit: 10 ans defaut fabrication.",
     ]),
     ("Mortiers et enduits", [
-        "REF-MOR-001 - Mortier colle C2 Weber 25kg - Prix: 18.50 EUR/sac",
+        "REF-MOR-001 - Mortier colle C2 25kg - Prix: 18.50 EUR/sac",
         "REF-MOR-002 - Enduit de facade monocouche 30kg - Prix: 24.00 EUR/sac",
         "Delai de livraison standard: 48h pour commandes avant 14h.",
     ]),
@@ -47,7 +91,7 @@ make_pdf("catalogue-produits.pdf", "Catalogue Produits SAMSE 2025", [
 make_pdf("procedures-achats.pdf", "Procedures Internes - Service Achats", [
     ("1. Processus de commande fournisseur", [
         "Toute commande superieure a 5 000 EUR doit etre validee par le directeur achats.",
-        "Les bons de commande sont emis via le logiciel SAP uniquement.",
+        "Les bons de commande sont emis via le logiciel de gestion uniquement.",
         "Delai de reglement standard: 30 jours fin de mois a date de facture.",
         "Tout nouveau fournisseur doit etre reference dans le systeme avant premiere commande.",
     ]),
@@ -62,7 +106,7 @@ make_pdf("procedures-achats.pdf", "Procedures Internes - Service Achats", [
         "Litige > 5000 EUR: comite direction, delai maximum 15 jours ouvrables.",
     ]),
     ("4. Fournisseurs strategiques", [
-        "Saint-Gobain, Rockwool, Weber, Knauf: contrats cadres annuels.",
+        f"{', '.join(FOURNISSEURS)}: contrats cadres annuels.",
         "Conditions de remise negociees sur volume annuel.",
         "Revue annuelle des conditions en novembre pour application janvier N+1.",
     ]),
@@ -70,7 +114,7 @@ make_pdf("procedures-achats.pdf", "Procedures Internes - Service Achats", [
 
 make_pdf("contrat-fournisseur-type.pdf", "Contrat Cadre Fournisseur - Modele Type", [
     ("Article 1 - Objet", [
-        "Le present contrat definit les conditions generales d'achat entre SAMSE Distribution (Acheteur) et le Fournisseur.",
+        f"Le present contrat definit les conditions generales d'achat entre {ACHETEUR.split(' - ')[0]} (Acheteur) et le Fournisseur.",
         "Duree: 12 mois renouvelables par tacite reconduction avec preavis de 3 mois.",
     ]),
     ("Article 2 - Conditions tarifaires", [
@@ -90,4 +134,7 @@ make_pdf("contrat-fournisseur-type.pdf", "Contrat Cadre Fournisseur - Modele Typ
     ]),
 ])
 
-print("Done. 3 PDFs generated in demo_docs/")
+for f in FOURNISSEURS:
+    make_contrat(f)
+
+print(f"Done. Documents generes dans {OUT_DIR}/ (acheteur et fournisseurs fictifs).")

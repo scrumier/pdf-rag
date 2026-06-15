@@ -18,7 +18,7 @@ def _get_collection():
     global _client, _collection
     if _collection is None:
         _client = chromadb.PersistentClient(path=CHROMA_PATH)
-        _collection = _client.get_or_create_collection("samse_docs")
+        _collection = _client.get_or_create_collection("docs")
     return _collection
 
 
@@ -107,7 +107,7 @@ def ask_question(question: str, n_results: int = 5) -> dict:
             {
                 "role": "system",
                 "content": (
-                    "Tu es un assistant interne SAMSE. Reponds en francais a partir UNIQUEMENT des documents fournis. "
+                    "Tu es un assistant interne ACME. Reponds en francais a partir UNIQUEMENT des documents fournis. "
                     "Si la reponse n'est pas dans les documents, dis-le clairement. "
                     "Cite toujours la source entre crochets [nom_fichier]."
                 ),
