@@ -1,17 +1,27 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "pdf-rag"
 version = "0.1.0"
+description = "Ask your internal PDFs a question and get the answer with its source"
 requires-python = ">=3.11"
 dependencies = [
-    "openai>=1.0",
-    "pdfplumber>=0.11",
-    "sentence-transformers>=5.4",
     "chromadb>=1.5",
     "flask>=3.1",
     "mcp[cli]>=1.27",
+    "openai>=1.0",
+    "pdfplumber>=0.11",
+    "python-dotenv>=1.0",
+    "sentence-transformers>=5.4",
+]
+
+[dependency-groups]
+dev = [
     "fpdf2>=2.8",
     "pytest>=8.0",
-    "python-dotenv>=1.0",
+    "ruff>=0.14.0",
 ]
 
 [tool.setuptools]
@@ -19,3 +29,51 @@ packages = ["rag"]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+[tool.ruff.lint]
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # Pyflakes: undefined names, unused imports
+    "I",      # isort: import sorting
+    "N",      # pep8-naming
+    "UP",     # pyupgrade: modernize syntax
+    "B",      # flake8-bugbear: likely bugs, footguns
+    "SIM",    # flake8-simplify
+    "D",      # pydocstyle: docstring presence and format
+    "ANN",    # flake8-annotations: missing type hints
+    "TID",    # flake8-tidy-imports: ban relative imports
+    "PL",     # Pylint subset (too-many-args, etc.)
+    "RUF",    # Ruff-native rules
+]
+ignore = [
+    "D203",   # conflicts with D211
+    "D213",   # conflicts with D212
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Test names are the documentation, and a test asserts on literals by design.
+"tests/**" = ["D100", "D103", "ANN", "PLR2004"]
+# Demo-data generator: literal document layouts, not library code.
+"scripts/gen_docs.py" = ["D103", "E501", "PLR2004"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.lint.flake8-tidy-imports]
+ban-relative-imports = "all"
+
+[tool.ruff.lint.isort]
+known-first-party = ["rag"]
+
+[tool.ruff.lint.pylint]
+max-args = 5
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+docstring-code-format = true
