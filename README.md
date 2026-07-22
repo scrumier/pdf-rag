@@ -13,7 +13,9 @@ make setup              # once, downloads the embedding model
 make run                # http://127.0.0.1:5050
 ```
 
-Six demo PDFs are included (supplier contracts, a purchasing procedure, a product catalogue), so it answers questions the second it starts. Point `DOCS_PATH` at your own folder to swap them out.
+Six demo PDFs are included (supplier contracts, a purchasing procedure, a product catalogue), all fictional, so it answers questions the second it starts. Point `DOCS_PATH` at your own folder to swap them out.
+
+`make test` runs the suite, `make lint` runs Ruff.
 
 ## How it works
 
