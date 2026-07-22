@@ -1,28 +1,39 @@
-# pdf-rag — launcher autonome.
-#   make setup   <- une fois : venv + deps (uv) [lourd : modèles ML]
-#   make run     <- démarre le chatbot RAG  ->  http://127.0.0.1:5050
-# Bind Tailscale uniquement, jamais exposé publiquement.
+# pdf-rag
+#   make setup   install dependencies (once, downloads the embedding model)
+#   make run     start the chat  ->  http://127.0.0.1:5050
+#   make docs    regenerate the demo PDFs
+#   make test    run the test suite
+#   make lint    lint and format check
 
 -include local.mk
-TS ?= 127.0.0.1
-PORT := 5050
+HOST ?= 127.0.0.1
+PORT ?= 5050
 
-.PHONY: help setup run
+.PHONY: help setup run docs test lint
 
 help:
 	@echo ""
-	@echo "  pdf-rag   ->  http://$(TS):$(PORT)"
-	@echo "    make setup   installe les deps (une fois, peut être long)"
-	@echo "    make run     démarre la démo"
+	@echo "  make setup   install dependencies (downloads the embedding model)"
+	@echo "  make run     chat  ->  http://$(HOST):$(PORT)"
+	@echo "  make docs    regenerate the demo PDFs"
+	@echo "  make test    run the test suite"
+	@echo "  make lint    lint and format check"
 	@echo ""
 
 setup:
-	@echo "==> uv sync (peut télécharger des modèles ML)..."
 	@uv sync --quiet
-	@echo "==> Prêt. Lancer :  make run"
+	@echo "==> Ready. Copy .env.example to .env and add your OPENROUTER_API_KEY."
 
 run:
-	@echo ""
-	@echo "==> Ouvre sur ton Mac :  http://$(TS):$(PORT)      (~10s de démarrage, Ctrl+C pour arrêter)"
-	@echo ""
-	@FLASK_HOST=$(TS) FLASK_PORT=$(PORT) uv run python -m rag.api
+	@echo "==> http://$(HOST):$(PORT)   (~10s to start, Ctrl+C to stop)"
+	@FLASK_HOST=$(HOST) FLASK_PORT=$(PORT) uv run python -m rag.api
+
+docs:
+	@uv run python scripts/gen_docs.py
+
+test:
+	@uv run pytest -q
+
+lint:
+	@uv run ruff check .
+	@uv run ruff format --check .
