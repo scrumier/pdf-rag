@@ -1,6 +1,6 @@
 # pdf-rag
 
-**Problem:** the answer is somewhere in 300 internal PDFs and nobody knows which one.
+**Problem:** the answer is somewhere in 300 internal PDFs and nobody knows which one.<br>
 **Solution:** ask in plain language, get the answer back with the document it came from.
 
 No fine-tuning, no cloud index. The documents stay on your machine.
